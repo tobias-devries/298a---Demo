@@ -17,9 +17,9 @@ module tb ();
   wire clk;
   wire rst_n;
   wire ena;
-  wire [7:0] in,
+   wire [7:0] ui_in,
   wire load,
-  wire [7:0] count
+   wire [7:0] ui_out
 `ifdef GL_TEST
   wire VPWR = 1'b1;
   wire VGND = 1'b0;
@@ -34,9 +34,9 @@ module tb ();
       .VGND(VGND),
 `endif
 
-     .in  (in),    // inputs
+     .ui_in  (ui_in),    // inputs
      .load (load),   // 
-     .count (count),   // Output
+     .ui_out (ui_out),   // Output
      .ena    (ena),      // enable - goes high when design is selected
       .clk    (clk),      // clock
       .rst_n  (rst_n)     // not reset
