@@ -10,10 +10,9 @@ module tt_um_counter(
     input  wire       ena,      // always 1 when the design is powered, so you can ignore it
     input  wire       clk,      // clock
     input  wire       rst_n,     // reset_n - low to reset
-    input wire load
 );
   reg [7:0] count_reg;
-    
+  wire load;
   
     always @(posedge clk or negedge rst_n) begin
       if(!rst_n) begin
