@@ -1,7 +1,7 @@
 `default_nettype none
 
 
-module counter(
+module tt_um_counter(
     input wire clk,
     input wire rst_n,
     input wire oe,
