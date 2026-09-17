@@ -17,7 +17,6 @@ module tb ();
   wire clk;
   wire rst_n;
   wire ena;
-  wire load,
  reg [7:0] ui_in;
   reg [7:0] uio_in;
   wire [7:0] uo_out;
