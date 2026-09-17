@@ -4,7 +4,7 @@
 module tt_um_counter(
     input wire clk,
     input wire rst_n,
-    input wire oe,
+    input wire ena,
     input wire [7:0] in,
     input wire load,
     output wire [7:0] count
@@ -22,5 +22,5 @@ module tt_um_counter(
       end
     end
   end
-  assign count = oe ? count_reg : 8'bz;
+  assign count = ena ? count_reg : 8'bz;
 endmodule
