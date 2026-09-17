@@ -4,14 +4,14 @@
 module counter(
     input wire clk,
     input wire rst_n,
-    input oe,
+    input wire oe,
     input wire [7:0] in,
     input wire load,
-    output reg [7:0] count
+    output wire [7:0] count
 );
   reg [7:0] count_reg;
   
-  always @(posedge clk and negedge rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
       if(!rst_n) begin
         count_reg <= 8'd0;
       end else begin
@@ -22,5 +22,5 @@ module counter(
       end
     end
   end
-  assign count = oe ? count_reg : 8'bzzzzzzz;
+  assign count = oe ? count_reg : 8'bz;
 endmodule
