@@ -17,9 +17,12 @@ module tb ();
   wire clk;
   wire rst_n;
   wire ena;
-   wire [7:0] ui_in,
   wire load,
-   wire [7:0] ui_out
+ reg [7:0] ui_in;
+  reg [7:0] uio_in;
+  wire [7:0] uo_out;
+  wire [7:0] uio_out;
+  wire [7:0] uio_oe;
 `ifdef GL_TEST
   wire VPWR = 1'b1;
   wire VGND = 1'b0;
