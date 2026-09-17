@@ -16,7 +16,7 @@ module tb ();
   // Wire up the inputs and outputs:
   wire clk;
   wire rst_n;
-  wire oe;
+  wire ena;
   wire [7:0] in,
   wire load,
   wire [7:0] count
@@ -37,7 +37,7 @@ module tb ();
      .in  (in),    // inputs
      .load (load),   // 
      .count (count),   // Output
-     .oe    (oe),      // enable - goes high when design is selected
+     .ena    (ena),      // enable - goes high when design is selected
       .clk    (clk),      // clock
       .rst_n  (rst_n)     // not reset
   );
