@@ -17,7 +17,7 @@ module tb ();
   wire clk;
   wire rst_n;
   wire ena;
- reg [7:0] ui_in;
+  reg [7:0] ui_in;
   reg [7:0] uio_in;
   wire [7:0] uo_out;
   wire [7:0] uio_out;
@@ -36,15 +36,14 @@ module tb ();
       .VGND(VGND),
 `endif
 
-     tt_um_counter user_project (
-    .ui_in   (ui_in),    // Dedicated inputs
-    .uo_out  (uo_out),   // Dedicated outputs
-    .uio_in  (uio_in),   // IOs: Input path
-    .uio_out (uio_out),  // IOs: Output path
-    .uio_oe  (uio_oe),   // IOs: Enable path
-    .ena     (ena),      // Enable
-    .clk     (clk),      // Clock
-    .rst_n   (rst_n)     // Reset
+      .ui_in   (ui_in),    // Dedicated inputs
+      .uo_out  (uo_out),   // Dedicated outputs
+      .uio_in  (uio_in),   // IOs: Input path
+      .uio_out (uio_out),  // IOs: Output path
+      .uio_oe  (uio_oe),   // IOs: Enable path
+      .ena     (ena),      // Enable
+      .clk     (clk),      // Clock
+      .rst_n   (rst_n)     // Reset
   );
 
 endmodule
