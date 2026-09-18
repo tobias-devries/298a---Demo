@@ -1,84 +1,59 @@
-`timescale 1ns / 1ps
+import cocotb
+from cocotb.clock import Clock
+from cocotb.triggers import ClockCycles, RisingEdge
 
-module tb_counter;
+@cocotb.test()
+async def test_counter_full(dut):
+    """Test all features of the 8-bit programmable counter."""
+    
+    # 1. Start a 100MHz clock (10ns period)
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
 
-    // Testbench stimulus signals (drive inputs as reg)
-    reg       clk;
-    reg       rst_n;
-    reg       load;
-    reg       oe;
-    reg [7:0] in;
+    dut._log.info("Starting Counter Cocotb Test...")
 
-    // Output bus (monitor outputs as wire)
-    wire [7:0] count;
+    # 2. Apply Asynchronous Reset
+    dut.ena.value = 1
+    dut.ui_in.value = 0
+    dut.uio_in.value = 0
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 2)
+    
+    # Verify counter resets to 0
+    assert dut.uo_out.value == 0, f"Reset failed! Expected 0, got {dut.uo_out.value}"
+    
+    # Release Reset
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 1)
 
-    // Instantiate the Unit Under Test (UUT)
-    counter uut (
-        .clk(clk),
-        .rst_n(rst_n),
-        .oe(oe),
-        .in(in),
-        .load(load),
-        .count(count)
-    );
+    # 3. Test Synchronous Load
+    test_load_val = 50
+    dut._log.info(f"Loading parallel value: {test_load_val}")
+    dut.ui_in.value = test_load_val   # Set input bus data
+    dut.uio_in.value = 1              # Set load bit high (uio_in[0])
+    await ClockCycles(dut.clk, 1)     # Wait for clock edge to load
 
-    // Clock Generation: 10ns period (100 MHz)
-    always #5 clk = ~clk;
+    # Disable load to resume counting
+    dut.uio_in.value = 0
+    
+    # Verify loaded value
+    assert dut.uo_out.value == test_load_val, f"Load failed! Expected {test_load_val}, got {dut.uo_out.value}"
 
-    // Test Sequence
-    initial begin
-        // 1. Initialize Signals
-        clk   = 0;
-        rst_n = 1;
-        load  = 0;
-        oe    = 1;
-        in    = 8'd0;
+    # 4. Test Up-Counting
+    dut._log.info("Testing sequential up-counting...")
+    await ClockCycles(dut.clk, 5)
+    expected_val = test_load_val + 5
+    assert dut.uo_out.value == expected_val, f"Counting failed! Expected {expected_val}, got {dut.uo_out.value}"
 
-        // Display monitor header in console
-        $display("--------------------------------------------------");
-        $display("Time | rst_n | load | oe |   in   |  count (hex / dec)");
-        $display("--------------------------------------------------");
-        $monitor("%4t |   %b   |  %b   | %b  | 8'h%h | 8'h%h (%3d)", 
-                 $time, rst_n, load, oe, in, count, count);
+    # 5. Test Overflow / Rollover (255 -> 0)
+    dut._log.info("Testing overflow wrap-around...")
+    dut.ui_in.value = 255
+    dut.uio_in.value = 1
+    await ClockCycles(dut.clk, 1)     # Load 255
+    
+    dut.uio_in.value = 0              # Clear load
+    await ClockCycles(dut.clk, 1)     # Count up by 1 (should roll over to 0)
 
-        // 2. Assert Asynchronous Reset
-        #2;
-        rst_n = 0; // Trigger reset
-        #10;
-        rst_n = 1; // Release reset
-        #8;
+    assert dut.uo_out.value == 0, f"Overflow failed! Expected 0, got {dut.uo_out.value}"
 
-        // 3. Test Up-Counting (Load = 0)
-        // Counter should increment on each rising clock edge
-        #20;
-
-        // 4. Test Synchronous Load
-        // Load preset value (e.g., 8'd50) into counter
-        in   = 8'd50;
-        load = 1;
-        #10;       // Wait for rising edge to load
-        load = 0;  // Release load
-
-        // 5. Test Up-Counting from Loaded Value
-        #30;
-
-        // 6. Test Tri-State Output Buffer Disable
-        oe = 0;    // Output should float to High-Z (8'hzz)
-        #20;
-
-        // 7. Re-enable Output Buffer
-        oe = 1;    // Output should drive valid counter value again
-        #20;
-
-        // 8. Test Asynchronous Reset Mid-Count
-        rst_n = 0; // Immediately clears counter to 0 regardless of clk
-        #10;
-        rst_n = 1;
-        #20;
-
-        $display("--------------------------------------------------");
-        $display("Simulation Finished Successfully.");
-        $finish;
-    end
-
-endmodule
+    dut._log.info("All counter tests passed successfully!")
